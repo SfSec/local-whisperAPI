@@ -42,8 +42,13 @@ async def options_transcriptions():
         "Content-Type": "application/json"
     }
     return JSONResponse(content={}, headers=headers)
-
-
+    
+# Some clients use different paths
+@app.post("/v1/models", dependencies=[Depends(verify_api_key)])
+@app.post("/v1", dependencies=[Depends(verify_api_key)])
+@app.post("/v1/audio/transcriptions", dependencies=[Depends(verify_api_key)])
+@app.post("/audio/transcriptions", dependencies=[Depends(verify_api_key)])
+@app.post("/v1/transcriptions", dependencies=[Depends(verify_api_key)])
 @app.post("/v1/audio/transcriptions", dependencies=[Depends(verify_api_key)])
 async def transcribe_audio(
     file: UploadFile,
@@ -74,8 +79,7 @@ async def transcribe_audio(
         if language:
             options["language"] = language
         segments, info = whisper_model.transcribe(temp_file_path, **options)
-        text = []
-        text.extend(segment.text for segment in segments)
+        text = "".join(segment.text for segment in segments)
         # Format response similar to OpenAI Whisper
         response ={   
             "text":text,       
@@ -104,11 +108,12 @@ async def options_models():
     return JSONResponse(content={}, headers=headers)
 
 @app.get("/v1/models", dependencies=[Depends(verify_api_key)])
+@app.get("/models", dependencies=[Depends(verify_api_key)])
 def list_models():
     """
     Lists available models for transcription.
     """
     return {"models": list(MODELS.keys())}
-
+# Restrictied to strict-local with 127.0.0.1 instead of 0.0.0.0
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=5000, log_level="info")
+    uvicorn.run(app, host="127.0.0.1", port=5000, log_level="info")
