@@ -11,3 +11,15 @@ pip install -r requirements.txt
 python main.py
 ```
 
+## Changes from upstream
+
+* Added compatibility routes (`/v1`, `/models`, etc.)
+* Fixed response format (`text` now string instead of array)
+* Confirmed working with Obsidian Whisper plugin
+
+Run with:
+
+```bash
+pip install -r requirements.txt
+python main.py
+```
